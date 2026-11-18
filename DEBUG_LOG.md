@@ -1,52 +1,63 @@
 # Debugging Log
 
-**PRN:** 202501100023  
-**Seed:** S = 23 (last four digits of the PRN)  
-**Scenario:** Student Marks (PRN mod 3 = 1)  
-**Hash Method:** Mid-square (PRN is odd)  
-**Collision Handling:** Separate chaining (PRN mod 2 = 1)  
-**Table Size:** m = 11, using the assignment's PRN-based rule: smallest prime greater than or equal to `(S mod 23) + 11`.
+**PRN:** 202501100023
 
-## Commit 1 – Personalized Dataset
+**Scenario:** Student Marks
 
-I generated the personalized 20-value dataset with `v[i] = (S + 13*i) mod 100`, using seed `S = 23`. The dataset is `23, 36, 49, 62, 75, 88, 1, 14, 27, 40, 53, 66, 79, 92, 5, 18, 31, 44, 57, 70`. The values are unique. The program compiled and printed the dataset.
+**Hash Method:** Mid-Square Method
 
-## Commit 2 – First Hash Attempt (Low Digits of the Square)
+**Collision Handling:** Separate Chaining
 
-My first hash attempt squared each key and used `(sq % 100) % m`. I thought this was the mid-square method, but it takes the last two digits of the square. For key 23, it uses 29, whereas the middle two digits of the four-digit form 0529 are 52. With `m = 11`, the correct bucket for key 23 is `52 mod 11 = 8`; the low-digit attempt gives `29 mod 11 = 7`. I abandoned the low-digit method.
+**Table Size:** 11 (smallest prime greater than or equal to `(S mod 23) + 11`, where `S = 23`)
 
-## Commit 3 – Correct Mid-Square Hash Function
+## Commit 1 – Initial Commit
 
-I changed the hash function to square the key, pad the square to four digits, take the middle two digits, and reduce that value modulo 11. For example, `23² = 0529`, so the middle digits are 52 and the bucket is `52 mod 11 = 8`. For `36² = 1296`, the middle digits are 29 and the bucket is `29 mod 11 = 7`. I compared the calculated bucket for each dataset value with my hand calculation.
+I started the repository for the hash table project and created the initial project files. This commit established the starting point for development. I then added the C++ implementation and supporting assignment documents in later commits.
 
-## Commit 4 – Hash Table with Separate Chaining and Insertion
+## Commit 2 – Create main.cpp
 
-I implemented a hash table with 11 buckets, using a vector of lists. The insert function calculates the mid-square bucket and appends the key to that bucket's chain. For example, keys 62, 14, and 18 all map to bucket 8 with this rule, so their chain is `62 -> 14 -> 18`. The program prints the bucket for each insertion.
+I created the initial C++ source file for the project. It provided the starting structure for implementing the personalized dataset and hash table. I continued developing the hashing and collision-handling logic in subsequent changes.
 
-## Commit 5 – Display Function
+## Commit 3 – Create TRACE_MATCH_REPORT.md
 
-I added a display function that prints every bucket and its chain. At first, empty buckets were not clearly shown. I changed the display so empty buckets print `NULL` and non-empty buckets show each key followed by an arrow and `NULL`.
+I added the Trace-Match Report file to record the hand-predicted hash results and compare them with the program output. The report should use the same PRN-derived dataset, hash method, collision strategy, and table size as the final program.
 
-## Commit 6 – Duplicate Handling and Search
+## Commit 4 – Create DEBUG_LOG.md
 
-I tested inserting 23 a second time. The first version allowed a duplicate, so I changed insertion to scan the target chain and ignore a key already present. I also added search, which calculates the key's bucket and scans that chain. I checked that 53 is found and 99 is not found.
+I added a debugging log to document the project’s development process. The log records the implementation steps and the failed approach described below.
 
-## Commit 7 – Trace-Match Report, Debug Log, and Program Output
+## Commit 5 – Update DEBUG_LOG.md
 
-I prepared the trace-match report and captured the program's console output. The hand-predicted bucket and chain results were compared with the actual output. Any mismatch found during comparison must be corrected in the code or explained in the report; the final report should match the final code using `m = 11`.
+I updated the debugging log to add more information about the development process and the failed mid-square attempt. This made the record clearer about why the first calculation was incorrect and what change corrected it.
 
-## Commit 8 – Git Log Export
+## Commit 6 – Create git_log.txt
 
-I exported the repository history with `git log --stat` for submission.
+I added `git_log.txt` to the repository. The submitted file needs to contain the actual output of `git log --stat`, including commit IDs, dates, messages, and file-change summaries; the command text by itself is not the log output.
 
-## Commit 9 – Log Export Cleanup
+## Commit 7 – Update README.md
 
-I removed an outdated log export and regenerated the file for submission. The submitted export should reflect the current repository history.
+I updated the README with the project description and instructions. I checked that it identifies the Student Marks scenario and explains how to build and run the C++ program.
 
-## Table Size Correction Required
+## Commit 8 – Update main.cpp
 
-My earlier source and report used `m = 13`. Rechecking the assignment's PRN-based table-size rule gives `m = 11`: `(23 mod 23) + 11 = 11`, and 11 is prime. I need to update the source, README, trace-match report, and captured output to use 11, then commit that correction and regenerate the Git log export. The previous commit history should remain unchanged; the correction should be recorded as a new commit with its actual timestamp.
+I updated the C++ implementation as the project developed. The final source should generate the personalized dataset, use the PRN-selected mid-square hash method and separate chaining, handle duplicate keys, and display/search the table. I also corrected the table size to 11 based on the assignment’s PRN-derived rule.
 
-## Failed Approach – Low Digits Instead of Middle Digits
+## Commit 9 – Update TRACE_MATCH_REPORT.md
 
-Initially, I used `(key * key) % 100` before applying the table-size modulus. This uses the low two digits, so it is not the assigned mid-square method. For key 23, it takes 29 instead of the middle digits 52. I replaced it with a method that extracts the middle two digits of a four-digit, zero-padded square, then takes the result modulo 11.
+I updated the Trace-Match Report to reflect the program’s hash calculations and table contents. The final report and captured output must be regenerated from the corrected source using table size 11, then checked against the hand-predicted results.
+
+## Commit 10 – Update DEBUG_LOG.md
+
+I updated the debugging log to make it consistent with the development history. The final version should describe only work and tests that actually occurred.
+
+## Commit 11 – Update README.md
+
+I updated the README with the final project details. I checked that its PRN, dataset, hash method, collision strategy, and table size agree with the final source and Trace-Match Report.
+
+## Failed Approach – Using the Last Two Digits Instead of the Middle Digits
+
+In my first mid-square attempt, I squared each key and used the last two digits of the result. For key 23, this used 29 from 529. I compared it with the mid-square calculation: the four-digit form is 0529, so the middle two digits are 52. The two calculations produced different bucket values, showing that my first method was using the low digits instead of the middle digits. I abandoned that method and changed the hash calculation to extract the middle two digits before applying the table-size modulus. I then checked the hash results against hand calculations.
+
+## Final Check
+
+I need to keep the source code, README, Trace-Match Report, captured output, and debugging log consistent with the same personalization values and table size. After the final code correction, I should run the program again, update the report and captured output, and regenerate `git_log.txt` from the repository’s actual history. The assignment also requires a separate unedited screen recording of up to four minutes demonstrating the running program and explaining its output.
