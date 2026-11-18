@@ -1,4 +1,4 @@
-# Hash Table Lab: Student Marks (Data Structures, Internal Activity 3, Q2)
+# Hash Table Lab: Student Marks (Data Structures, Internal Activity 3)
 
 **Subject:** Data Structures (2310212 T), MIT Academy of Engineering, Alandi
 **PRN:** 202501100023
