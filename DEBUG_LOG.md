@@ -1,51 +1,52 @@
 # Debugging Log
 
-**PRN:** 202501100023
-
-**Scenario:** Student Marks
-
-**Hash Method:** Mid-Square Method
-
-**Collision Handling:** Separate Chaining
-
-**Table Size:** 13
+**PRN:** 202501100023  
+**Seed:** S = 23 (last four digits of the PRN)  
+**Scenario:** Student Marks (PRN mod 3 = 1)  
+**Hash Method:** Mid-square (PRN is odd)  
+**Collision Handling:** Separate chaining (PRN mod 2 = 1)  
+**Table Size:** m = 11, using the assignment's PRN-based rule: smallest prime greater than or equal to `(S mod 23) + 11`.
 
 ## Commit 1 – Personalized Dataset
 
-I created the personalized dataset using the given PRN-based formula v[i] = (S + 13×i) mod 100 with seed 23 (last four digits of the PRN). I wrote a function that generates all 20 values and prints them. The values were 23, 36, 49, 62, 75, 88, 1, 14, 27, 40, 53, 66, 79, 92, 5, 18, 31, 44, 57, 70, and all were unique. The program compiled and ran without errors.
+I generated the personalized 20-value dataset with `v[i] = (S + 13*i) mod 100`, using seed `S = 23`. The dataset is `23, 36, 49, 62, 75, 88, 1, 14, 27, 40, 53, 66, 79, 92, 5, 18, 31, 44, 57, 70`. The values are unique. The program compiled and printed the dataset.
 
 ## Commit 2 – First Hash Attempt (Low Digits of the Square)
 
-I wrote my first hash function by squaring the key and taking `sq % 100 % 13`, thinking that this was the mid-square method. It compiled and produced indexes between 0 and 12. When I compared it with my hand calculation, key 23 gave bucket 3 instead of 0 (23² = 529, middle digits 52, 52 mod 13 = 0). I realised this function uses the last two digits of the square, not the middle digits, so it is not the mid-square method.
+My first hash attempt squared each key and used `(sq % 100) % m`. I thought this was the mid-square method, but it takes the last two digits of the square. For key 23, it uses 29, whereas the middle two digits of the four-digit form 0529 are 52. With `m = 11`, the correct bucket for key 23 is `52 mod 11 = 8`; the low-digit attempt gives `29 mod 11 = 7`. I abandoned the low-digit method.
 
 ## Commit 3 – Correct Mid-Square Hash Function
 
-I fixed the hash function. The key is squared, the last digit is dropped using `/ 10`, and the next two digits are taken using `% 100`. These middle two digits are then reduced with `% 13` to fit the table. All 20 computed indexes now matched my hand calculations. For example, 23 → 529 → 52 → bucket 0, and 36 → 1296 → 29 → bucket 3.
+I changed the hash function to square the key, pad the square to four digits, take the middle two digits, and reduce that value modulo 11. For example, `23² = 0529`, so the middle digits are 52 and the bucket is `52 mod 11 = 8`. For `36² = 1296`, the middle digits are 29 and the bucket is `29 mod 11 = 7`. I compared the calculated bucket for each dataset value with my hand calculation.
 
 ## Commit 4 – Hash Table with Separate Chaining and Insertion
 
-I created a `HashTable` class that holds a `vector<list<int>>` of size 13, so each bucket is a linked list. The insert function calculates the index with the mid-square hash and appends the key to that bucket's list. Collisions need no special handling, because keys with the same index simply join the same chain. For example, 62, 14 and 18 all went to bucket 6. A message is printed for each insertion showing its bucket.
+I implemented a hash table with 11 buckets, using a vector of lists. The insert function calculates the mid-square bucket and appends the key to that bucket's chain. For example, keys 62, 14, and 18 all map to bucket 8 with this rule, so their chain is `62 -> 14 -> 18`. The program prints the bucket for each insertion.
 
 ## Commit 5 – Display Function
 
-I added a `display()` function that prints every bucket and its chain, such as `[6] 62 -> 14 -> 18 -> NULL`. At first I forgot to print NULL for empty buckets, which made bucket 4 look like a missing line. After adding NULL, empty buckets are shown clearly. The final table had 13 buckets and all 20 values.
+I added a display function that prints every bucket and its chain. At first, empty buckets were not clearly shown. I changed the display so empty buckets print `NULL` and non-empty buckets show each key followed by an arrow and `NULL`.
 
 ## Commit 6 – Duplicate Handling and Search
 
-While testing, I inserted 23 a second time and it created a duplicate entry in bucket 0. I changed insert so it scans the chain first and ignores the key if it is already there. I also implemented a search function that calculates the bucket and scans only that chain. I tested search(53), which was found, and search(99), which was not found. Both gave the correct results.
+I tested inserting 23 a second time. The first version allowed a duplicate, so I changed insertion to scan the target chain and ignore a key already present. I also added search, which calculates the key's bucket and scans that chain. I checked that 53 is found and 99 is not found.
 
-## Commit 7 – Trace-Match Report, Debug Log and Output
+## Commit 7 – Trace-Match Report, Debug Log, and Program Output
 
-I captured the program output in `output.txt` and wrote the Trace-Match Report, comparing my predicted table with the actual output. All 13 buckets matched. The only mismatch was the abandoned first attempt from Commit 2, which is explained in the report.
+I prepared the trace-match report and captured the program's console output. The hand-predicted bucket and chain results were compared with the actual output. Any mismatch found during comparison must be corrected in the code or explained in the report; the final report should match the final code using `m = 11`.
 
 ## Commit 8 – Git Log Export
 
-I exported the commit history with `git log --stat` for submission.
+I exported the repository history with `git log --stat` for submission.
 
-## Commit 9 – Cleanup
+## Commit 9 – Log Export Cleanup
 
-I removed a stale copy of the log export from the repository and regenerated it as `git_log_stat.txt` for submission.
+I removed an outdated log export and regenerated the file for submission. The submitted export should reflect the current repository history.
+
+## Table Size Correction Required
+
+My earlier source and report used `m = 13`. Rechecking the assignment's PRN-based table-size rule gives `m = 11`: `(23 mod 23) + 11 = 11`, and 11 is prime. I need to update the source, README, trace-match report, and captured output to use 11, then commit that correction and regenerate the Git log export. The previous commit history should remain unchanged; the correction should be recorded as a new commit with its actual timestamp.
 
 ## Failed Approach – Low Digits Instead of Middle Digits
 
-Initially, I computed the hash as `(key × key) % 100 % 13`. This worked as a hash function, but it is not the mid-square method, because it uses the last two digits of the square rather than the middle ones. The results did not match my hand-calculated table (key 23 gave bucket 3 instead of 0). I abandoned it and used `(sq / 10) % 100 % 13` to extract the middle digits. After the fix, every key matched my hand prediction.
+Initially, I used `(key * key) % 100` before applying the table-size modulus. This uses the low two digits, so it is not the assigned mid-square method. For key 23, it takes 29 instead of the middle digits 52. I replaced it with a method that extracts the middle two digits of a four-digit, zero-padded square, then takes the result modulo 11.
